@@ -152,6 +152,10 @@ class CustomerPanel:
         from Payment import PaymentSystem
         PaymentSystem(self.app)
 
+
+
+        
+
     def clearcontent(self):
         for widget in self.content_frame.winfo_children():
             widget.destroy()
