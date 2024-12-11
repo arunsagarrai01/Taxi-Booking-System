@@ -95,9 +95,3 @@ class TaxiBookingApp(ctk.CTk):
         self.destroy()
 
 
-if __name__ == "__main__":
-    ctk.set_appearance_mode("light")  # Set the theme
-    ctk.set_default_color_theme("blue")  # Set the color theme
-    app = TaxiBookingApp()
-    app.protocol("WM_DELETE_WINDOW", app.on_closing)  # Close DB connection on window close
-    app.mainloop()

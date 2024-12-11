@@ -158,8 +158,3 @@ class CustomerRegistrationPage(ctk.CTk):
 
     def cancel(self):
         self.destroy()
-
-
-if __name__ == "__main__":
-    app = CustomerRegistrationPage()
-    app.mainloop()

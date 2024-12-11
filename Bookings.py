@@ -27,6 +27,8 @@ class TaxiBookingApp:
         self.root.geometry("1000x700")
         self.bookings = []
 
+        self.markers = []
+
         # Set theme for CustomTkinter
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
@@ -135,11 +137,13 @@ class TaxiBookingApp:
 
         if pickup_location and dropoff_location:
             try:
+                # Geocode the pickup and dropoff locations
                 pickup_coords = self.geolocator.geocode(pickup_location)
                 dropoff_coords = self.geolocator.geocode(dropoff_location)
 
+                # Check if geocoding was successful for both locations
                 if pickup_coords and dropoff_coords:
-                    # Get the coordinates
+                    # Get the coordinates of both locations
                     pickup_lat = pickup_coords.latitude
                     pickup_lon = pickup_coords.longitude
                     dropoff_lat = dropoff_coords.latitude
@@ -149,17 +153,51 @@ class TaxiBookingApp:
                     self.distance = geodesic((pickup_lat, pickup_lon), (dropoff_lat, dropoff_lon)).kilometers
 
                     # Calculate fare (e.g., $1 per kilometer)
-                    self.fare = round(self.distance * 1, 2)
+                    self.fare = round(self.distance * 40, 2)
 
                     # Update the UI with the calculated values
                     self.distance_value_label.configure(text=f"{self.distance:.2f}")
-                    self.fare_value_label.configure(text=f"${self.fare}")
+                    self.fare_value_label.configure(text=f"Rs{self.fare}")
+
+                    # Update the map with the new pickup and dropoff locations
+                    self.update_map(pickup_lat, pickup_lon, dropoff_lat, dropoff_lon)
                 else:
+                    # Handle case where geocoding failed (invalid locations)
                     self.distance_value_label.configure(text="N/A")
                     self.fare_value_label.configure(text="N/A")
+                    messagebox.showerror("Error", "Could not find the locations. Please check the addresses.")
             except Exception as e:
+                # Handle general exceptions (e.g., network errors, other unexpected errors)
                 self.distance_value_label.configure(text="Error")
                 self.fare_value_label.configure(text="Error")
+                messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+    def update_map(self, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon):
+        try:
+            # Clear the map first by deleting existing markers (if any)
+            for marker in self.markers:
+                self.map_widget.delete_marker(marker)  # Delete each marker in the list
+
+            # Reset the marker list after clearing
+            self.markers.clear()
+
+            # Add new markers for pickup and dropoff locations
+            pickup_marker = self.map_widget.set_marker(pickup_lat, pickup_lon, text="Pickup")
+            dropoff_marker = self.map_widget.set_marker(dropoff_lat, dropoff_lon, text="Dropoff")
+
+            # Add the new markers to the list
+            self.markers.append(pickup_marker)
+            self.markers.append(dropoff_marker)
+
+            # Adjust the zoom level and center the map between the pickup and dropoff locations
+            center_lat = (pickup_lat + dropoff_lat) / 2
+            center_lon = (pickup_lon + dropoff_lon) / 2
+
+            self.map_widget.set_position(center_lat, center_lon)
+            self.map_widget.set_zoom(12)
+        except Exception as e:
+            # Handle any errors related to map updates (e.g., invalid coordinates)
+            messagebox.showerror("Map Error", f"Error updating the map: {str(e)}")
 
     def book_taxi(self):
         pickup_location = self.pickup_entry.get()
@@ -183,9 +221,3 @@ class TaxiBookingApp:
             messagebox.showinfo("Booking Confirmed", f"Taxi booked from {pickup_location} to {dropoff_location} on {date_time}. Fare: ${self.fare}")
         except ValueError as e:
             messagebox.showerror("Input Error", "Please ensure all fields are correctly filled.")
-
-# Main loop
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = TaxiBookingApp(root)
-    root.mainloop()

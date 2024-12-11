@@ -1,5 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
+from tkinter import Canvas
+from PIL import Image, ImageTk  # Import the required modules for working with images
 
 class IndexPage(ctk.CTk):
     def __init__(self):
@@ -10,6 +12,18 @@ class IndexPage(ctk.CTk):
         self.title("Taxi Booking System")
         self.geometry("600x400")
         self.configure(bg="#f4f4f4")
+        self.resizable(False, False)
+
+
+        # Load background image
+        self.bg_image = Image.open("Image/Taxi.jpg")  # Replace with your image path
+        self.bg_image = self.bg_image.resize((1000, 1000))  # Resize to fit the window
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+
+        # Create a Canvas and add the background image
+        self.canvas = Canvas(self, width=600, height=400)
+        self.canvas.create_image(0, 0, anchor="nw", image=self.bg_photo)
+        self.canvas.place(relwidth=1, relheight=1)  # Make the canvas cover the entire window
 
         # Title Label (Fix: Using text_color instead of fg)
         self.title_label = ctk.CTkLabel(
@@ -88,7 +102,6 @@ class IndexPage(ctk.CTk):
         from Admin_Login_Page import AdminLoginPage
         app = AdminLoginPage()  # Instantiate the page
         app.mainloop()  
-
 
     def exit_app(self):
         self.destroy()

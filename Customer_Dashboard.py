@@ -96,6 +96,38 @@ class CustomerPanel:
         else:
             CTkMessagebox(title="Error", message=message, icon="error")
 
+    def write_report(self):
+        # Clear the current content
+        self.clearcontent()
+
+        # Header for the Write Report Section
+        header = ctk.CTkLabel(self.content_frame, text="Write a Report", font=("Arial", 24, "bold"))
+        header.grid(row=0, column=0, columnspan=2, pady=10)
+
+        # Report Text Area
+        ctk.CTkLabel(self.content_frame, text="Report Details:", anchor="w").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        self.text_report = ctk.CTkTextbox(self.content_frame, width=400, height=200)
+        self.text_report.grid(row=1, column=1, padx=10, pady=5)
+
+        # Submit Button
+        ctk.CTkButton(self.content_frame, text="Submit Report", fg_color="blue", command=self.submit_report).grid(
+            row=2, column=0, columnspan=2, pady=20
+        )
+
+    def submit_report(self):
+        # Get the report content
+        report_content = self.text_report.get("1.0", "end").strip()
+
+        if report_content:
+            # Call the method to save the report in the database
+            success, message = self.cuspanfeat.submit_customer_report(self.customer_id, report_content)
+            if success:
+                CTkMessagebox(title="Success", message="Your report has been submitted successfully!", icon="check")
+            else:
+                CTkMessagebox(title="Error", message=f"Failed to submit the report: {message}", icon="error")
+        else:
+            CTkMessagebox(title="Error", message="Report content cannot be empty!", icon="warning")
+
     def CustomerFunctions(self):
         # Sidebar frame
         self.button_frame = ctk.CTkFrame(self.app, height=100, corner_radius=15)
@@ -105,20 +137,20 @@ class CustomerPanel:
         self.booking_button = ctk.CTkButton(self.button_frame, text="Profile", command=self.Customer_Profile, fg_color="green")
         self.booking_button.pack(pady=10, padx=10, side="left")
 
-        self.history_button = ctk.CTkButton(self.button_frame, text="Ride History")
+        self.history_button = ctk.CTkButton(self.button_frame, text="Booking History", command=self.History)
         self.history_button.pack(pady=10, padx=10, side="left")
 
         self.payment_button = ctk.CTkButton(self.button_frame, text="Pay Here", command=self.Pay, fg_color="brown")
         self.payment_button.pack(pady=10, padx=10, side="left")
 
-        self.Rate_button = ctk.CTkButton(self.button_frame, text="Rate the Ride", fg_color="grey")
-        self.Rate_button.pack(pady=10, padx=10, side="left")
-
         # Add a Book Taxi Button
         self.book_taxi_button = ctk.CTkButton(self.button_frame, text="Book a Taxi", fg_color="blue", command=self.book_taxi)
         self.book_taxi_button.pack(pady=10, padx=10, side="left")
 
-        self.logout_button = ctk.CTkButton(self.button_frame, text="Logout", fg_color="#DC143C")
+        self.report_button = ctk.CTkButton(self.button_frame, text="Write Report", fg_color="orange", command=self.write_report)
+        self.report_button.pack(pady=10, padx=10, side="left")
+
+        self.logout_button = ctk.CTkButton(self.button_frame, text="Logout", fg_color="#DC143C", command=self.logout)
         self.logout_button.pack(pady=10, padx=10, side="right")
 
     def update_customer(self):
@@ -142,26 +174,66 @@ class CustomerPanel:
             CTkMessagebox(title="Update Failed", message=f"Failed to update details: {message}", icon="error")
 
     def book_taxi(self):
-        # Clear current content
-        self.clearcontent()
+        taxi_booking_window = ctk.CTkToplevel()
+        taxi_booking_window.title("Book a Taxi")
+        taxi_booking_window.geometry("800x600")  # Adjust window size as needed
+
         from Bookings import TaxiBookingApp
-        TaxiBookingApp(self.app)
+        TaxiBookingApp(taxi_booking_window)
+        self.clearcontent()
 
     def Pay(self):
+        # Clear current content or perform necessary actions before launching Payment UI
+        self.clearcontent()  
+        from Payment import TaxiBookingApp  # Ensure the Payment interface is defined here
+        payment_app = TaxiBookingApp()  # Create an instance of the payment app
+        payment_app.mainloop()  # Start the main event loops
+
+    def History(self):
+        # Clear current content
         self.clearcontent()
-        from Payment import PaymentSystem
-        PaymentSystem(self.app)
+
+        # Get the ride history for the customer
+        ride_history, message = self.cuspanfeat.get_ride_history(self.customer_id)
+
+        if ride_history:
+            # Create a table to display the ride history
+            header = ctk.CTkLabel(self.content_frame, text="Booking History", font=("Arial", 24, "bold"))
+            header.grid(row=0, column=0, columnspan=7, pady=10)  # Adjusted columnspan to 7
+
+            # Column headers for the table (removed "Driver" and "Driver Phone")
+            columns = ["Booking ID", "Pickup Location", "Dropoff Location", "Date", "Time", "Fare", "Status"]
+            for col_num, col_name in enumerate(columns):
+                ctk.CTkLabel(self.content_frame, text=col_name, font=("Arial", 12, "bold")).grid(row=1, column=col_num, padx=10, pady=5)
+
+            # Populate the table with ride history data
+            for row_num, ride in enumerate(ride_history, start=2):
+                ctk.CTkLabel(self.content_frame, text=ride['booking_id']).grid(row=row_num, column=0, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['pickup_location']).grid(row=row_num, column=1, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['dropoff_location']).grid(row=row_num, column=2, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['date']).grid(row=row_num, column=3, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['Dtime']).grid(row=row_num, column=4, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['fare']).grid(row=row_num, column=5, padx=10, pady=5)
+                ctk.CTkLabel(self.content_frame, text=ride['status']).grid(row=row_num, column=6, padx=10, pady=5)  # Display status
+
+        else:
+            CTkMessagebox(title="No History", message=message, icon="info")
 
 
 
+    def logout(self):
+        self.clearcontent()
+        self.app.destroy()
+        self.show_login_screen()
         
 
+    def show_login_screen(self):
+        from Index_Page import IndexPage
+        app =  IndexPage()
+        app.mainloop()
+
+        
     def clearcontent(self):
         for widget in self.content_frame.winfo_children():
             widget.destroy()
 
-if __name__ == "__main__":
-    app = ctk.CTk()
-    customer_id = 1  # Use actual customer ID
-    CustomerPanel(app, customer_id)
-    app.mainloop()

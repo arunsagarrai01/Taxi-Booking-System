@@ -1,8 +1,8 @@
 import customtkinter as ctk
 from tkinter import messagebox
+from tkcalendar import DateEntry  # Import for calendar widget
 import re  # For email and phone number validation
 from Database_Connection import DatabaseConnection  # Import the class
-
 
 class DriverRegistrationPage(ctk.CTk):
     def __init__(self):
@@ -17,7 +17,6 @@ class DriverRegistrationPage(ctk.CTk):
 
         # Main Frame
         self.main_frame = ctk.CTkFrame(self, fg_color="#ffffff", corner_radius=20)
-
         self.main_frame.place(relx=0.5, rely=0.5, anchor="center")
 
         # Title Label
@@ -56,8 +55,16 @@ class DriverRegistrationPage(ctk.CTk):
         self.other_button.grid(row=6, column=1, sticky="w", pady=5)
 
         # Date of Birth
-        self.create_label_and_entry("Date of Birth (DD/MM/YYYY)", 7)
-        self.dob_entry = self.create_entry(7)
+        self.create_label("Date of Birth", 7)
+        self.dob_entry = DateEntry(
+            self.main_frame,
+            width=20,
+            background='darkblue',
+            foreground='white',
+            date_pattern='dd/MM/yyyy',
+            font=("Helvetica", 12)
+        )
+        self.dob_entry.grid(row=7, column=1, pady=(0, 10))
 
         # Email
         self.create_label_and_entry("Email Address", 8)
@@ -113,6 +120,10 @@ class DriverRegistrationPage(ctk.CTk):
         label = ctk.CTkLabel(self.main_frame, text=label_text, font=("Helvetica", 14))
         label.grid(row=row, column=0, sticky="w", pady=(10, 5))
 
+    def create_label(self, label_text, row):
+        label = ctk.CTkLabel(self.main_frame, text=label_text, font=("Helvetica", 14))
+        label.grid(row=row, column=0, sticky="w", pady=(10, 5))
+
     def create_entry(self, row, **kwargs):
         entry = ctk.CTkEntry(self.main_frame, placeholder_text="Enter here", width=300, font=("Helvetica", 12), **kwargs)
         entry.grid(row=row, column=1, pady=(0, 10))
@@ -143,12 +154,8 @@ class DriverRegistrationPage(ctk.CTk):
             messagebox.showerror("Validation Error", "Enter a valid 10-digit phone number.")
             return
 
-        if gender == "None":
-            messagebox.showerror("Validation Error", "Please select your gender.")
-            return
-
-        if not dob or not re.match(r'^\d{2}/\d{2}/\d{4}$', dob):
-            messagebox.showerror("Validation Error", "Enter a valid DOB in the format DD/MM/YYYY.")
+        if not dob:
+            messagebox.showerror("Validation Error", "Date of Birth is required.")
             return
 
         if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
@@ -159,10 +166,6 @@ class DriverRegistrationPage(ctk.CTk):
             messagebox.showerror("Validation Error", "Password must be at least 6 characters.")
             return
 
-        if not vehicle_model:
-            messagebox.showerror("Validation Error", "Vehicle Model is required.")
-            return
-
         if not vehicle_reg_number.isdigit():
             messagebox.showerror("Validation Error", "Vehicle Registration Number must be numeric.")
             return
@@ -171,23 +174,23 @@ class DriverRegistrationPage(ctk.CTk):
             messagebox.showerror("Validation Error", "License Number must be numeric.")
             return
 
-        # Create an instance of the DatabaseConnection class
-        db_connection = DatabaseConnection()
+        try:
+            # Create an instance of the DatabaseConnection class
+            db_connection = DatabaseConnection()
 
-        # Insert into database if validation passes
-        success, message = db_connection.save_driver_data(
-            full_name, address, phone_number, gender, dob, email, password, vehicle_model, vehicle_reg_number, license_number
-        )
+            # Insert into the database if validation passes
+            success, message = db_connection.insert_driver(
+                full_name, address, phone_number, gender, dob, email, password, vehicle_model, vehicle_reg_number, license_number
+            )
 
-        if success:
-            messagebox.showinfo("Success", "Driver registration successful!")
-        else:
-            messagebox.showerror("Database Error", f"Error: {message}")
+            if success:
+                messagebox.showinfo("Success", "Driver registration successful!")
+            else:
+                messagebox.showerror("Database Error", f"Error: {message}")
+
+        except Exception as e:
+            # Handle any unforeseen exceptions during database interaction
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
     def cancel(self):
         self.destroy()
-
-
-if __name__ == "__main__":
-    app = DriverRegistrationPage()
-    app.mainloop()

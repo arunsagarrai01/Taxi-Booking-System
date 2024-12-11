@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
-import re  # To validate email format
 import os
+import subprocess
 from Database_Connection import DatabaseConnection
 
 
@@ -78,21 +78,6 @@ class AdminLoginPage(ctk.CTk):
         )
         self.login_button.grid(row=6, column=0, pady=(10, 10))
 
-        # Forgot Password Button
-        self.forgot_password_button = ctk.CTkButton(
-            self.main_frame,
-            text="Forgot Password?",
-            font=("Helvetica", 10),
-            width=200,
-            height=30,
-            fg_color="white",
-            text_color="#1E90FF",  # Default text color (dodger blue)
-            hover_color="#87CEEB",  # Sky blue hover
-            border_width=0,
-            command=self.forgot_password
-        )
-        self.forgot_password_button.grid(row=7, column=0, pady=(5, 10))
-
         # Logout Button
         self.logout_button = ctk.CTkButton(
             self.main_frame,
@@ -104,7 +89,7 @@ class AdminLoginPage(ctk.CTk):
             hover_color="#FF6347",  # Tomato hover
             command=self.Exit
         )
-        self.logout_button.grid(row=8, column=0, pady=(10, 20))
+        self.logout_button.grid(row=7, column=0, pady=(10, 20))
 
     def login(self):
         """
@@ -112,7 +97,7 @@ class AdminLoginPage(ctk.CTk):
         """
         email = self.email_entry.get()
         password = self.password_entry.get()
-        
+
         if not email or not password:
             messagebox.showwarning("Error", "Please enter both email and password.")
             return
@@ -124,13 +109,20 @@ class AdminLoginPage(ctk.CTk):
 
         if success:
             messagebox.showinfo("Success", message)
+
+            # Close the login window (destroy it)
             self.destroy()
-            os.system("python Admin_Dashboard.py") 
+
+            # Import AdminDashboard after successful login and create an instance
+            from Admin_Dashboard import AdminDashboard
+            root = ctk.CTk()  # Create a new Tkinter window for the Admin Dashboard
+            admin_dashboard = AdminDashboard(root)  # Initialize the Admin Dashboard
+            root.mainloop()  # Start the Tkinter event loop for the Admin Dashboard
         else:
             messagebox.showerror("Login Failed", message)
 
-    def forgot_password(self):
-        messagebox.showinfo("Forgot Password", "Redirecting to Forgot Password Page.")
+
+
 
     def Exit(self):
         response = messagebox.askyesno("Exit", "Are you sure you want to exit?")
@@ -140,7 +132,3 @@ class AdminLoginPage(ctk.CTk):
             app = IndexPage()  
             app.mainloop()
 
-
-if __name__ == "__main__":
-    app = AdminLoginPage()
-    app.mainloop()
