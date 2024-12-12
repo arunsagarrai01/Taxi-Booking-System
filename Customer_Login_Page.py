@@ -168,6 +168,7 @@ class CustomerLoginPage(ctk.CTk):
         self.title("Customer Login")
         self.geometry("400x600")
         self.configure(bg="#f4f4f4")
+        self.resizable(False, False)
 
         # Configure grid layout to center the main frame
         self.grid_rowconfigure(0, weight=1)  # Center vertically

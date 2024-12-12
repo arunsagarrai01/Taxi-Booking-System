@@ -168,6 +168,7 @@ class DriverLoginPage(ctk.CTk):
         self.title("Driver Login")
         self.geometry("400x500")
         self.configure(bg="#f4f4f4")
+        self.resizable(False, False)
 
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)

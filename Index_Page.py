@@ -14,7 +14,6 @@ class IndexPage(ctk.CTk):
         self.configure(bg="#f4f4f4")
         self.resizable(False, False)
 
-
         # Load background image
         self.bg_image = Image.open("Image/Taxi.jpg")  # Replace with your image path
         self.bg_image = self.bg_image.resize((1000, 1000))  # Resize to fit the window

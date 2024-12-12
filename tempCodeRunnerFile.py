@@ -1,2 +1,1 @@
-from tkinter import Canvas
-from PIL import Image, ImageTk
+#self.resizable(False, False)
