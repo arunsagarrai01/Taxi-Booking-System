@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import messagebox  # Import messagebox
 from Database_Connection import DatabaseConnection  # Replace with your database connection module
 
 
@@ -15,6 +16,16 @@ class AdminReportViewer:
         # Header
         header = ctk.CTkLabel(self.app, text="Customer Reports", font=("Arial", 24, "bold"))
         header.pack(pady=10)
+
+        # Refresh Button
+        refresh_button = ctk.CTkButton(
+            self.app,
+            text="Refresh Reports",
+            command=self.refresh_reports,
+            fg_color="#4CAF50",
+            font=("Arial", 12, "bold")
+        )
+        refresh_button.pack(pady=10)
 
         # Content frame
         self.content_frame = ctk.CTkFrame(self.app, corner_radius=10)
@@ -53,4 +64,11 @@ class AdminReportViewer:
             for col_num, value in enumerate(report):
                 value_label = ctk.CTkLabel(self.content_frame, text=str(value), anchor="w")
                 value_label.grid(row=row_num, column=col_num, padx=10, pady=5, sticky="w")
+
+    def refresh_reports(self):
+        # Refresh the reports by fetching them again
+        self.fetch_reports()
+
+        # Show a success message box
+        messagebox.showinfo("Success", "Reports refreshed successfully!")
 

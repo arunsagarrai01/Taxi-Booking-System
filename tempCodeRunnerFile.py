@@ -1,1 +1,0 @@
-#self.resizable(False, False)

@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 import re  # For email and phone number validation
 from Database_Connection import DatabaseConnection  # Import the class
+from tkcalendar import DateEntry  # Import for calendar widget
 
 class CustomerRegistrationPage(ctk.CTk):
     def __init__(self):
@@ -59,11 +60,21 @@ class CustomerRegistrationPage(ctk.CTk):
         self.other_button = ctk.CTkRadioButton(self.main_frame, text="Other", variable=self.gender_var, value="Other")
         self.other_button.grid(row=6, column=2, sticky="w", pady=5)
 
-        # Date of Birth
-        self.dob_label = ctk.CTkLabel(self.main_frame, text="Date of Birth (DD/MM/YYYY)", font=("Helvetica", 14))
+         # Date of Birth
+        self.dob_label = ctk.CTkLabel(self.main_frame, text="Date of Birth", font=("Helvetica", 14))
         self.dob_label.grid(row=7, column=1, sticky="w", pady=(10, 5))
-        self.dob_entry = ctk.CTkEntry(self.main_frame, placeholder_text="Enter your DOB", width=300, font=("Helvetica", 12))
+
+        self.dob_entry = DateEntry(
+            self.main_frame,
+            width=27,
+            background="darkblue",
+            foreground="white",
+            borderwidth=2,
+            date_pattern="dd/MM/yyyy",
+            font=("Helvetica", 12)
+        )
         self.dob_entry.grid(row=7, column=2, pady=(0, 10))
+
 
         # Email
         self.email_label = ctk.CTkLabel(self.main_frame, text="Email Address", font=("Helvetica", 14))
