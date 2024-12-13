@@ -193,7 +193,7 @@ class DatabaseConnection:
         except Error as e:
             print(f"Error retrieving customer details: {e}")
             return None, str(e)
-
+    
     def fetch_query(self, query, values=None):
         """
         Fetch data from the database using a SELECT query.
