@@ -198,13 +198,14 @@ class DriverDashboard:
                 
                 ctk.CTkLabel(self.root, text=ride['status']).grid(row=row_num, column=6, padx=10, pady=5)
 
-                # "Mark as Done" Button
+                # "Mark as Done" Buttonx``
                 mark_done_button = ctk.CTkButton(
-                    self.root,
-                    text="Mark as Done",
-                    command=lambda ride_id=ride['booking_id'], status_label=status_label: db.mark_as_done(ride_id, status_label)
-                )
-                mark_done_button.grid(row=row_num, column=7, padx=10, pady=5)
+                self.root,
+                text="Mark as Done",
+                command=lambda ride_id=ride['booking_id']: self.mark_ride_as_done(ride_id)
+            )
+            mark_done_button.grid(row=row_num, column=7, padx=10, pady=5)
+
 
             # Back button to navigate to the dashboard
             back_button = ctk.CTkButton(self.root, text="Back", command=self.go_to_dashboard)
@@ -250,6 +251,16 @@ class DriverDashboard:
         taxi = ctk.CTk()  # Create a new window for Driver Dashboard
         app = DriverDashboard(taxi, self.driver_name, self.driver_id)  # Pass driver_name and driver_id
         taxi.mainloop()  # Start the dashboard
+
+    def mark_ride_as_done(self, booking_id):
+        db = DatabaseConnection()
+        success, message = db.mark_as_done(booking_id)  # Update this method in your database logic
+        
+        if success:
+            messagebox.showinfo("Success", f"Booking {booking_id} marked as done!")
+            self.view_bookings()  # Refresh the bookings page to show updated status
+        else:
+            messagebox.showerror("Error", message)
 
     def show_popup(self, title, message):
         # Simple pop-up window to display information

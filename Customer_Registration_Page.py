@@ -168,4 +168,9 @@ class CustomerRegistrationPage(ctk.CTk):
             messagebox.showerror("Database Error", f"Error: {message}")
 
     def cancel(self):
-        self.destroy()
+        response = messagebox.askyesno("Exit", "Are you sure you want to exit?")
+        if response:
+            self.destroy()   
+            from Index_Page import IndexPage
+            app = IndexPage()  
+            app.mainloop()

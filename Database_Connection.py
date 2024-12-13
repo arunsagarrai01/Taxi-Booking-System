@@ -785,21 +785,50 @@ class DatabaseConnection:
         """Mark a ride as completed."""
         if self.connection is None:
             print("No database connection.")
-            return None
+            return False, "No database connection."
 
         try:
             # Update the status of the booking to 'Completed'
-            query = "UPDATE rides SET status = 'Completed' WHERE booking_id = %s"
+            query = "UPDATE bookings SET status = 'Completed' WHERE booking_id = %s"
             cursor = self.connection.cursor()
             cursor.execute(query, (booking_id,))
             self.connection.commit()  # Commit the changes
             cursor.close()
 
             print(f"Booking {booking_id} has been marked as completed.")
-            return True  # Return True on success
+            return True, f"Booking {booking_id} marked as completed."
         except Error as e:
             print(f"Error updating ride status for booking {booking_id}: {e}")
-            return None  # Return None on failure
+            return False, f"Error updating ride status: {e}"
+
+    def cancel_book(self, customer_id, booking_id):
+        if self.connection is None:
+            print("No database connection.")
+            return False, "Database connection error."
+
+        try:
+            # Update the status of the booking to 'canceled'
+            query = "UPDATE bookings SET status = 'cancelled' WHERE customer_id = %s AND booking_id = %s"
+            cursor = self.connection.cursor()
+
+            # Execute the query with parameters
+            cursor.execute(query, (customer_id, booking_id))
+            self.connection.commit()  # Commit the transaction to apply changes
+
+            # Check if any row was affected
+            if cursor.rowcount > 0:
+                cursor.close()
+                print('821')
+                return True, "Booking canceled successfully."
+            else:
+                cursor.close()
+                print('825')
+                return False, "No booking found with the given ID or already canceled."
+
+        except Error as e:
+            print(f"Error canceling booking: {e}")
+            return False, f"Error canceling booking: {e}"
+
 
 
     def get_customer_details(self, email):

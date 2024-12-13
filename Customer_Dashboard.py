@@ -189,20 +189,22 @@ class CustomerPanel:
         payment_app = TaxiBookingApp()  # Create an instance of the payment app
         payment_app.mainloop()  # Start the main event loops
 
+
     def History(self):
         # Clear current content
         self.clearcontent()
 
         # Get the ride history for the customer
         ride_history, message = self.cuspanfeat.get_ride_history(self.customer_id)
+        print(f"Ride history: {ride_history}")  # Debug: check ride history data
 
         if ride_history:
-            # Create a table to display the ride history
+            # Create a header for the history section
             header = ctk.CTkLabel(self.content_frame, text="Booking History", font=("Arial", 24, "bold"))
-            header.grid(row=0, column=0, columnspan=7, pady=10)  # Adjusted columnspan to 7
+            header.grid(row=0, column=0, columnspan=8, pady=10)  # Adjusted columnspan to 8
 
-            # Column headers for the table (removed "Driver" and "Driver Phone")
-            columns = ["Booking ID", "Pickup Location", "Dropoff Location", "Date", "Time", "Fare", "Status"]
+            # Column headers for the table (added "Cancel" column)
+            columns = ["Booking ID", "Pickup Location", "Dropoff Location", "Date", "Time", "Fare", "Status", "Canceedl"]
             for col_num, col_name in enumerate(columns):
                 ctk.CTkLabel(self.content_frame, text=col_name, font=("Arial", 12, "bold")).grid(row=1, column=col_num, padx=10, pady=5)
 
@@ -214,18 +216,39 @@ class CustomerPanel:
                 ctk.CTkLabel(self.content_frame, text=ride['date']).grid(row=row_num, column=3, padx=10, pady=5)
                 ctk.CTkLabel(self.content_frame, text=ride['Dtime']).grid(row=row_num, column=4, padx=10, pady=5)
                 ctk.CTkLabel(self.content_frame, text=ride['fare']).grid(row=row_num, column=5, padx=10, pady=5)
-                ctk.CTkLabel(self.content_frame, text=ride['status']).grid(row=row_num, column=6, padx=10, pady=5)  # Display status
+                ctk.CTkLabel(self.content_frame, text=ride['status']).grid(row=row_num, column=6, padx=10, pady=5)
+
+                # Cancel button for each booking
+                
+                def cancel_booking(ride_id):
+                    print('Error Here')
+                    # Call the method to cancel the booking
+                    success, cancel_message = self.cuspanfeat.cancel_book(self.customer_id, ride_id)
+                    print(success, cancel_message)
+                    if success:
+                        # Update the status in the UI to reflect the canceled booking
+                        CTkMessagebox(title="Success", message="Booking canceled successfully", icon="check")
+                        self.clearcontent()  # Clear the existing content before refreshing
+                        self.History()  # Refresh the history screen after canceling
+                    else:
+                        CTkMessagebox(title="Error", message=cancel_message, icon="error")
+                try:
+                    def forcancel():
+                        ride_id=ride['booking_id']
+                        cancel_booking(ride_id)
+                except Exception as e :
+                    print('Here is Exception', e)
+                # Use default argument in the lambda to capture the correct ride_id
+                cancel_button = ctk.CTkButton(self.content_frame, text="Cancel", command=forcancel)
+                cancel_button.grid(row=row_num, column=7, padx=10, pady=5)  # Cancel button in the last column
 
         else:
             CTkMessagebox(title="No History", message=message, icon="info")
-
-
 
     def logout(self):
         self.clearcontent()
         self.app.destroy()
         self.show_login_screen()
-        
 
     def show_login_screen(self):
         from Index_Page import IndexPage

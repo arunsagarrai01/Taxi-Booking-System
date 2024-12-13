@@ -166,14 +166,6 @@ class DriverRegistrationPage(ctk.CTk):
             messagebox.showerror("Validation Error", "Password must be at least 6 characters.")
             return
 
-        if not vehicle_reg_number.isdigit():
-            messagebox.showerror("Validation Error", "Vehicle Registration Number must be numeric.")
-            return
-
-        if not license_number.isdigit():
-            messagebox.showerror("Validation Error", "License Number must be numeric.")
-            return
-
         try:
             # Create an instance of the DatabaseConnection class
             db_connection = DatabaseConnection()
@@ -193,4 +185,9 @@ class DriverRegistrationPage(ctk.CTk):
             messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
     def cancel(self):
-        self.destroy()
+        response = messagebox.askyesno("Exit", "Are you sure you want to exit?")
+        if response:
+            self.destroy()   
+            from Index_Page import IndexPage
+            app = IndexPage()  
+            app.mainloop()
